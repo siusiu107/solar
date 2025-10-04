@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 호스팅 및 로그인 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4285F4; /* Google Blue */
+            margin-bottom: 20px;
+        }
+        #login-btn {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        #login-btn:hover {
+            background-color: #357ae8;
+        }
+        .user-info {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #e6f0ff;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // 2. ⭐⭐⭐여기를 네 프로젝트 설정으로 변경해야 해! ⭐⭐⭐
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", 
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Firebase 초기화
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✅ 배포 성공!</h1>
+        <p>이제 구글 로그인 기능을 테스트해 보세요.</p>
+        
+        <button id="login-btn">Google로 로그인</button>
+
+        <div class="user-info">
+            <p id="user-status">로그인 상태를 확인 중...</p>
+        </div>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('login-btn');
+        const userStatus = document.getElementById('user-status');
+        
+        // 로그인/로그아웃 상태가 바뀔 때마다 실행됨
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // 로그인 상태
+                userStatus.innerHTML = `환영합니다, **${user.displayName}**님! (${user.email})`;
+                loginBtn.textContent = '로그아웃';
+                loginBtn.onclick = handleLogout;
+            } else {
+                // 로그아웃 상태
+                userStatus.textContent = '로그아웃 상태입니다.';
+                loginBtn.textContent = 'Google로 로그인';
+                loginBtn.onclick = handleLogin;
+            }
+        });
+
+        // 로그인 처리 함수
+        function handleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch((error) => {
+                    alert('로그인 실패: ' + error.message);
+                    console.error('로그인 오류:', error);
+                });
+        }
+
+        // 로그아웃 처리 함수
+        function handleLogout() {
+            auth.signOut().then(() => {
+                alert('로그아웃되었습니다.');
+            }).catch((error) => {
+                console.error('로그아웃 오류:', error);
+            });
+        }
+    </script>
+
+</body>
+</html>
